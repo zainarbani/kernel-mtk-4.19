@@ -155,6 +155,9 @@ static int binder_set_stop_on_user_error(const char *val,
 module_param_call(stop_on_user_error, binder_set_stop_on_user_error,
 	param_get_int, &binder_stop_on_user_error, 0644);
 
+static bool binder_global_pid_lookups = true;
+module_param_named(global_pid_lookups, binder_global_pid_lookups, bool, S_IRUGO);
+
 #define binder_debug(mask, x...) \
 	do { \
 		if (binder_debug_mask & mask) \
@@ -4606,6 +4609,9 @@ retry:
 			trd->sender_pid =
 				task_tgid_nr_ns(sender,
 						task_active_pid_ns(current));
+
+			if (binder_global_pid_lookups && trd->sender_pid == 0)
+				trd->sender_pid = task_tgid_nr(sender);
 
 #ifdef CONFIG_MTK_TASK_TURBO
 			if (binder_start_turbo_inherit(t_from->task,
