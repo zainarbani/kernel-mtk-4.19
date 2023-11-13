@@ -84,7 +84,7 @@ static size_t depot_offset;
 static DEFINE_RAW_SPINLOCK(depot_lock);
 #ifdef CONFIG_PAGE_OWNER
 static struct stack_record *max_found;
-static DEFINE_SPINLOCK(max_found_lock);
+static DEFINE_RAW_SPINLOCK(max_found_lock);
 #endif
 
 
@@ -233,10 +233,10 @@ void depot_hit_stack(depot_stack_handle_t handle, struct stack_trace *trace,
 	unsigned long flags;
 
 	stack->hit += cnt;
-	spin_lock_irqsave(&max_found_lock, flags);
+	raw_spin_lock_irqsave(&max_found_lock, flags);
 	if ((!max_found) || (stack->hit > max_found->hit))
 		max_found = stack;
-	spin_unlock_irqrestore(&max_found_lock, flags);
+	raw_spin_unlock_irqrestore(&max_found_lock, flags);
 }
 
 void show_max_hit_page(void)
@@ -249,13 +249,13 @@ void show_max_hit_page(void)
 		.max_entries = 16,
 		.skip = 0
 	};
-	spin_lock_irqsave(&max_found_lock, flags);
+	raw_spin_lock_irqsave(&max_found_lock, flags);
 	if (max_found) {
 		depot_fetch_stack(max_found->handle.handle, &trace);
 		pr_info("max found hit=%d\n", max_found->hit);
 		print_stack_trace(&trace, 2);
 	}
-	spin_unlock_irqrestore(&max_found_lock, flags);
+	raw_spin_unlock_irqrestore(&max_found_lock, flags);
 }
 #endif
 
