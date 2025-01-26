@@ -1208,6 +1208,10 @@ struct kbase_device {
 	struct job_status_qos job_status_addr;
 	struct v1_data* v1;
 #endif
+
+	struct work_struct work_js_scheduler;
+	bool js_timer_callback_running;
+	u32 js_timer_callback_delay_timers;
 };
 
 /**
