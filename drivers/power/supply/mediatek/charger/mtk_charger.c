@@ -2434,6 +2434,10 @@ static int mtk_charger_plug_in(struct charger_manager *info,
 	if (info->plug_in != NULL)
 		info->plug_in(info);
 
+	if (chr_type == STANDARD_HOST || chr_type == CHARGING_HOST) {
+		charger_dev_rerun_apsd(info->chg1_dev, true);
+	}
+
 	if (chr_type == STANDARD_CHARGER)
 		info->chg1_data.input_current_limit = 1000000;
 
@@ -2512,6 +2516,7 @@ static bool mtk_is_charger_on(struct charger_manager *info)
 	enum charger_type chr_type;
 
 	chr_type = mt_get_charger_type();
+
 	if (chr_type == CHARGER_UNKNOWN) {
 		if (info->chr_type != CHARGER_UNKNOWN) {
 			mtk_charger_plug_out(info);
